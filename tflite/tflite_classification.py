@@ -37,7 +37,7 @@ def build_argparser():
     exec_args = parser.add_argument_group('Execution Options')
     parser.add_argument('-h', '--help', action='help', default=SUPPRESS, 
                         help='Show this help message and exit.')
-    input_args.add_argument("-m", "--model", type=str, default="convert_model/converted_model.tflite",
+    input_args.add_argument("-m", "--model", type=str, default="convert_model/frozen_model/converted_model.tflite",
                         help="Optional.\n"
                              "Path to an .tflite file with a trained model.")
     input_args.add_argument("-i", "--input", type=str, default="../jpeg/face0.jpg",
