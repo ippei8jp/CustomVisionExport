@@ -15,6 +15,8 @@ try :
     tflite_load_delegate = tflite.load_delegate
 except ModuleNotFoundError :
     # だめだったら tensorflow からロードしてみる
+    print('tflite_runtime.interpreter がインポートできませんでした.')
+    print('代わりに tensorflow.lite のインポートを試みます.')
     import tensorflow.lite as tflite
     # ビミョーに階層違うので、ここで差分吸収
     tflite_Interpreter = tflite.Interpreter
