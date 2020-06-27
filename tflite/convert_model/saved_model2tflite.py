@@ -19,6 +19,10 @@ def build_argparser():
                         help="出力ファイル(tfliteファイル)")
     parser.add_argument("-d", "--data_dir", type=str, default="./data",
                         help="キャリブレーションデータディレクトリ")
+    parser.add_argument("--width", type=int, default=224,
+                        help="入力データの幅")
+    parser.add_argument("--hight", type=int, default=224,
+                        help="入力データの高さ")
     parser.add_argument('--quantize', nargs='*',
                         help="量子化種別  <weight, integer>")
     return parser
@@ -64,8 +68,8 @@ def main():
     
     # グローバル変数の設定
     data_dir = args.data_dir
-    input_width  = 224
-    input_height = 224
+    input_width  = args.width
+    input_height = args.hight
     
     tf.compat.v1.enable_eager_execution()
     
