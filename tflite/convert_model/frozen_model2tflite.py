@@ -45,7 +45,6 @@ def representative_dataset_gen():
         image = cv2.imread(input_file)
         # NNに入力できる形式に変換
         resized_image = cv2.resize(image, (input_width, input_height))      # input size of coco ssd mobilenet?
-        resized_image = resized_image[:, :, [2,1,0]]                        # BGR -> RGB
         resized_image = np.expand_dims(resized_image, axis=0)               # 3D -> 4D
         resized_image = resized_image.astype(np.float32)                    # 型変換 uint8 -> float32 
         

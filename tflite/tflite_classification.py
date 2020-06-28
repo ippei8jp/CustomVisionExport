@@ -149,7 +149,6 @@ def main():
         
         # モデル入力用にリサイズ
         in_frame = cv2.resize(frame, (input_width, input_height))   # モデルの入力サイズに画像をリサイズ
-        in_frame = in_frame[:, :, [2,1,0]]                          # BGR -> RGB
         in_frame = np.expand_dims(in_frame, axis=0)                 # 3D -> 4D
         if input_dtype != np.uint8 :
             in_frame = in_frame.astype(input_dtype)                 # モデルの入力型がuint8以外だったら型変換
