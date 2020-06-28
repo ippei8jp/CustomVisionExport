@@ -19,12 +19,12 @@ def build_argparser():
                         help="出力ファイル(tfliteファイル)")
     parser.add_argument("-d", "--data_dir", type=str, default="./data",
                         help="キャリブレーションデータディレクトリ")
-    parser.add_argument('--quantize', nargs='*',
+    parser.add_argument('--quantize', nargs='*', default=[],
                         help="量子化種別  <weight, integer>")
-    parser.add_argument('--input_tensors', type=str, default="Placeholder",
-                        help="量子化種別  <weight, integer>")
-    parser.add_argument('--output_tensors', type=str, default="model_outputs",
-                        help="量子化種別  <weight, integer>")
+    parser.add_argument('--input_tensors', nargs='*', default=["Placeholder"],
+                        help="入力ノード名")
+    parser.add_argument('--output_tensors', nargs='*', default=["model_outputs"],
+                        help="出力ノード名")
     return parser
 
 # キャリブレーション用データ生成ルーチン
@@ -63,10 +63,9 @@ def main():
     quantize = args.quantize
     input_tensors  = args.input_tensors
     output_tensors = args.output_tensors
-    # オプション quantize が指定されていなければ空のlistを作成
-    if not quantize :
-        quantize = []
-    
+    # print(f'input_tensors  : {type(input_tensors)}\t{str(input_tensors)}')
+    # print(f'output_tensors : {type(output_tensors)}\t{str(output_tensors)}')
+
     # グローバル変数の設定
     data_dir = args.data_dir
     input_width  = 224
@@ -78,7 +77,7 @@ def main():
     # export_model = os.path.splitext(args.output)[0] + "_full_integer_quant" + os.path.splitext(args.output)[1]  # 出力ファイル名
     export_model = args.output
     # converter = tf.lite.TFLiteConverter.from_saved_model(args.input)
-    converter = tf.lite.TFLiteConverter.from_frozen_graph(args.input, [input_tensors], [output_tensors])
+    converter = tf.lite.TFLiteConverter.from_frozen_graph(args.input, input_tensors, output_tensors)
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
     converter.representative_dataset = representative_dataset_gen
     converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
@@ -88,23 +87,21 @@ def main():
     open(export_model, "wb").write(tflite_quant_model)
     print("==== Full Integer Quantization complete! ====")
     
-    # if "weight" in quantize :
-    if True :
+    if "weight" in quantize :
         # Weight Quantization - Input/Output=float32
         export_model = os.path.splitext(args.output)[0] + "_weight_quant" + os.path.splitext(args.output)[1]        # 出力ファイル名
         # converter = tf.lite.TFLiteConverter.from_saved_model(args.input)
-        converter = tf.lite.TFLiteConverter.from_frozen_graph(args.input, [input_tensors], [output_tensors])
+        converter = tf.lite.TFLiteConverter.from_frozen_graph(args.input, input_tensors, output_tensors)
         converter.optimizations = [tf.lite.Optimize.OPTIMIZE_FOR_SIZE]
         tflite_quant_model = converter.convert()
         open(export_model, "wb").write(tflite_quant_model)
         print("==== Weight Quantization complete! ====")
     
-    # if "integer" in quantize :
-    if True :
+    if "integer" in quantize :
         # Integer Quantization - Input/Output=float32
         export_model = os.path.splitext(args.output)[0] + "_integer_quant" + os.path.splitext(args.output)[1]       # 出力ファイル名
         # converter = tf.lite.TFLiteConverter.from_saved_model(args.input)
-        converter = tf.lite.TFLiteConverter.from_frozen_graph(args.input, [input_tensors], [output_tensors])
+        converter = tf.lite.TFLiteConverter.from_frozen_graph(args.input, input_tensors, output_tensors)
         converter.optimizations = [tf.lite.Optimize.DEFAULT]
         converter.representative_dataset = representative_dataset_gen
         tflite_quant_model = converter.convert()
@@ -113,26 +110,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main() or 0)
-
-# converter.representative_dataset で設定する関数の書き方
-
-'''
-saved_model_dir="./TensorFlowSavedModel"
-export_model = "converted_model.tflite"
-export_model_size = "converted_model_size.tflite"
-
-print("**** DEFAULT ****")
-converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_dir)
-converter.optimizations = [tf.lite.Optimize.DEFAULT]
-# converter.optimizations = [tf.lite.Optimize.OPTIMIZE_FOR_SIZE]
-tflite_quant_model = converter.convert()
-open(export_model, "wb").write(tflite_quant_model)
-
-print("**** SIZE ****")
-converter = tf.lite.TFLiteConverter.from_saved_model(saved_model_dir)
-converter.optimizations = [tf.lite.Optimize.OPTIMIZE_FOR_SIZE]
-tflite_quant_model = converter.convert()
-open(export_model_size, "wb").write(tflite_quant_model)
-
-
-'''
